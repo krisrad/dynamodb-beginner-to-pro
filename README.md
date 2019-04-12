@@ -1,9 +1,8 @@
 # dynamodb-beginner-to-pro
 AWS ACG course on dynamodb beginner to pro
 
-# weatherstation-basic
+## weatherstation-basic: Query weather data
 
-## Query weather data
 - set up random weather data by running the weatherstation_data_populate script
 - get one item by using get-item command by providing partition key and sort key
 - Use 'Query' command to search within a partition key, by providing filter conditions.
