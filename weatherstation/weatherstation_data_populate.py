@@ -19,7 +19,7 @@ from tqdm import trange
 from tqdm import tqdm
 
 # Boto init
-loadmin_session = boto3.Session(profile_name='loadmin')
+loadmin_session = boto3.Session(profile_name='ddbloadmin')
 db_c = loadmin_session.client('dynamodb')
 db_r = loadmin_session.resource('dynamodb')
 
@@ -58,19 +58,19 @@ def d_table(): # define table configuration
 #------------------------------------------------------------------------------
 def c_table (c): # create dynamo DB tables
     try:
-        print "INFO :: Creating %s Table....." % c['TableName']
+        print ("INFO :: Creating %s Table....." % c['TableName'])
         db_r.create_table(**c)
-        print "INFO :: Waiting for completion..."
+        print ("INFO :: Waiting for completion...")
         db_r.Table(c['TableName']).wait_until_exists()
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "ResourceInUseException":
-            print "INFO :: WeatherstationInc %s Table exists, deleting ...." % c['TableName']
+            print ("INFO :: WeatherstationInc %s Table exists, deleting ...." % c['TableName'])
             db_r.Table(c['TableName']).delete()
-            print "INFO :: Waiting for delete.."
+            print ("INFO :: Waiting for delete..")
             db_r.Table(c['TableName']).wait_until_not_exists()
             c_table (c)
         else:
-            print "Unknown Error"
+            print ("Unknown Error")
 #------------------------------------------------------------------------------
 def p_table (stations, datapoints): # Populate Table
     with db_r.Table('weatherstation_data').batch_writer() as batch:
@@ -91,7 +91,7 @@ def item_gen(station_id): # Generate ITEM for a given station ID
     return i;
 #------------------------------------------------------------------------------
 def u_table(Table, RCU, WCU):  # Update table with RCU and WCU
-  print "INFO :: Updating Capacity on table [%s]" % Table
+  print ("INFO :: Updating Capacity on table [%s]" % Table)
   db_r.Table(Table).update( \
     ProvisionedThroughput={'ReadCapacityUnits': RCU, 'WriteCapacityUnits': WCU}
   )
@@ -100,13 +100,13 @@ def u_table(Table, RCU, WCU):  # Update table with RCU and WCU
     if db_r.Table(Table).table_status == 'ACTIVE':
       break
     time.sleep(30)
-    print "INFO :: Waiting for update on table [%s]" % Table
+    print ("INFO :: Waiting for update on table [%s]" % Table)
 
 # ------------------------------------------------------------------------------
 if __name__ == "__main__":
     num_of_stations=10
     num_of_datapoints=100
-    print "Re-creating weatherstation_data table,"
+    print ("Re-creating weatherstation_data table,")
     table_config = d_table() # create table config.
     t_conf=d_table() # generate table config
     c_table(t_conf) # create table, with the above config
